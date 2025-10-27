@@ -38,7 +38,7 @@ Add the following `<script>` tag to your HTML `<head>` (see demo HTML for refere
 <!-- Import AlgoMintX SDK -->
 <script
   defer
-  src="https://cdn.jsdelivr.net/gh/IBHAGYESH/AlgoMintX@v1.1.0/dist/algomintx.js"
+  src="https://cdn.jsdelivr.net/gh/algorangers/AlgoMintX@v1.1.0/dist/algomintx.js"
 ></script>
 ```
 
@@ -233,12 +233,3 @@ Pull requests and feature suggestions are welcome! For major changes, please ope
 Thank you for checking out AlgoMintX! This project was crafted with care to simplify NFT marketplace development on Algorand and help developers ship faster.
 
 If you found this useful, feel free to ⭐️ star the repo and share it with others in the community.
-
-## 👨‍💻 About the Author
-
-Built and maintained by Bhagyesh Jahangirpuria.
-
-- 🌐 Website: http://ibhagyesh.site
-- 🔗 LinkedIn: https://in.linkedin.com/in/bhagyesh-jahangirpuria
-
-Feel free to connect for collaborations, feedback, or consulting!
