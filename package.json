@@ -1,0 +1,33 @@
+{
+  "name": "algomintx",
+  "version": "1.1.0",
+  "main": "algomintx.js",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "Bhagyesh Jahangirpuria",
+  "license": "ISC",
+  "description": "SDK for rapidly developing Algorand powered NFT Marketplace",
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/node": "^22.15.3",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "@algorandfoundation/algokit-utils": "^9.0.1",
+    "@algorandfoundation/algorand-typescript": "^1.0.0-beta.69",
+    "@blockshake/defly-connect": "^1.2.1",
+    "@perawallet/connect": "^1.4.2",
+    "algosdk": "^3.2.0"
+  }
+}

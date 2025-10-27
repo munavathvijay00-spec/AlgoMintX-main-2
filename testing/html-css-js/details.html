@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AlgoMintX NFT Marketplace Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- for local testing-->
+    <!-- <script defer src="../../dist/algomintx.js"></script> -->
+    <!-- for live testing-->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/gh/IBHAGYESH/AlgoMintX@v1.1.0/dist/algomintx.js"
+    ></script>
+    <script defer src="./index.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container header-content">
+        <div class="logo">
+          <img src="logo.png" alt="AlgoMintX Logo" />
+          <h1>AlgoMintX NFT Marketplace</h1>
+        </div>
+        <div id="profile-section" class="profile-section" style="display: none">
+          <div class="wallet-info">
+            <span id="wallet-address"></span>
+          </div>
+          <div class="profile-avatar">
+            <img
+              src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png"
+              alt="Profile"
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <div class="container">
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="profile.html">Profile</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="container">
+        <h2 class="page-title">NFT Details</h2>
+        <div id="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading NFT details...</p>
+        </div>
+        <div id="nft-details" class="nft-details"></div>
+        <div id="nft-actions" class="nft-actions"></div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container footer-content">
+        <p>
+          &copy;
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          AlgoMintX NFT Marketplace. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const assetId = urlParams.get("id");
+
+        if (!assetId) {
+          alert("No NFT ID provided");
+          return;
+        }
+
+        try {
+          const loadingContainer = document.getElementById("loading");
+          const nftDetails = document.getElementById("nft-details");
+          const nftActions = document.getElementById("nft-actions");
+
+          // Show loading state
+          loadingContainer.style.display = "block";
+          nftDetails.style.display = "none";
+          nftActions.style.display = "none";
+
+          const nftData = await window.renderNFTDetailsPage(assetId);
+
+          // Handle NFT actions based on conditions
+          const walletConnected = window.algoMintXClient.account !== null;
+          const currentWallet = window.algoMintXClient.account;
+
+          // Clear previous buttons
+          nftActions.innerHTML = "";
+
+          if (nftData.listing) {
+            // Case 1: NFT is listed and wallet is not connected
+            if (!walletConnected) {
+              const buyButton = document.createElement("button");
+              buyButton.className = "action-button buy-button";
+              buyButton.textContent = `Buy NFT for ${nftData.listing.price} Algo`;
+              buyButton.onclick = async () => {
+                await window.algoMintXClient.buyNFT({
+                  assetId: Number(assetId),
+                });
+              };
+              nftActions.appendChild(buyButton);
+            }
+            // Case 2: NFT is listed and wallet is connected and current wallet is the seller
+            else if (nftData.listing.seller === currentWallet) {
+              const unlistButton = document.createElement("button");
+              unlistButton.className = "action-button unlist-button";
+              unlistButton.textContent = "Unlist NFT";
+              unlistButton.onclick = async () => {
+                try {
+                  await window.algoMintXClient.unlistNFT({
+                    assetId: Number(assetId),
+                  });
+                } catch (error) {
+                  alert("Failed to unlist NFT: " + error.message);
+                }
+              };
+              nftActions.appendChild(unlistButton);
+            }
+            // Case 3: NFT is listed, wallet is connected, and current wallet is not the seller
+            else {
+              const buyButton = document.createElement("button");
+              buyButton.className = "action-button buy-button";
+              buyButton.textContent = `Buy NFT for ${nftData.listing.price} Algo`;
+              buyButton.onclick = async () => {
+                try {
+                  await window.algoMintXClient.buyNFT({
+                    assetId: Number(assetId),
+                  });
+                } catch (error) {
+                  alert("Failed to buy NFT: " + error.message);
+                }
+              };
+              nftActions.appendChild(buyButton);
+            }
+          } else {
+            // Case 4: NFT is not listed and current wallet is the holder
+            if (nftData.currentHolder === currentWallet) {
+              const listButton = document.createElement("button");
+              listButton.className = "action-button list-button";
+              listButton.textContent = "List NFT";
+              listButton.onclick = () => {
+                window.openListNFTModal(Number(assetId));
+              };
+              nftActions.appendChild(listButton);
+            }
+            // Case 5: NFT is not listed and current wallet is not the holder
+            // No button needed
+          }
+
+          // Show actions if any buttons were added
+          if (nftActions.children.length > 0) {
+            nftActions.style.display = "block";
+          }
+        } catch (error) {
+          console.error("Error loading NFT details:", error);
+          alert("Failed to load NFT details: " + error.message);
+        } finally {
+          // Hide loading state
+          const loadingContainer = document.getElementById("loading");
+          const nftDetails = document.getElementById("nft-details");
+          loadingContainer.style.display = "none";
+          nftDetails.style.display = "block";
+        }
+
+        // Function to refresh NFT details
+        async function refreshNFTDetails() {
+          try {
+            const loadingContainer = document.getElementById("loading");
+            const nftDetails = document.getElementById("nft-details");
+            const nftActions = document.getElementById("nft-actions");
+
+            // Show loading state
+            loadingContainer.style.display = "block";
+            nftDetails.style.display = "none";
+            nftActions.style.display = "none";
+
+            // Reload the page to get fresh data
+            window.location.reload();
+          } catch (error) {
+            console.error("Error refreshing NFT details:", error);
+            alert("Failed to refresh NFT details: " + error.message);
+          }
+        }
+
+        // Listen for NFT events
+        window.algoMintXClient.events.on("nft:buy:success", async () => {
+          await refreshNFTDetails();
+        });
+
+        window.algoMintXClient.events.on("nft:list:success", async () => {
+          await refreshNFTDetails();
+        });
+
+        window.algoMintXClient.events.on("nft:unlist:success", async () => {
+          await refreshNFTDetails();
+        });
+      });
+    </script>
+  </body>
+</html>

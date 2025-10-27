@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AlgoMintX NFT Marketplace Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- for local testing-->
+    <!-- <script defer src="../../dist/algomintx.js"></script> -->
+    <!-- for live testing-->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/gh/IBHAGYESH/AlgoMintX@v1.1.0/dist/algomintx.js"
+    ></script>
+    <script defer src="./index.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container header-content">
+        <div class="logo">
+          <img src="logo.png" alt="AlgoMintX Logo" />
+          <h1>AlgoMintX NFT Marketplace</h1>
+        </div>
+        <div id="profile-section" class="profile-section" style="display: none">
+          <div class="wallet-info">
+            <span id="wallet-address"></span>
+          </div>
+          <div class="profile-avatar">
+            <img
+              src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png"
+              alt="Profile"
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <div class="container">
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="profile.html">Profile</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="container">
+        <h2 class="page-title">Featured NFTs</h2>
+        <div id="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading NFTs...</p>
+        </div>
+        <div id="nft-grid" class="nft-grid"></div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container footer-content">
+        <p>
+          &copy;
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          AlgoMintX NFT Marketplace. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const loadingContainer = document.getElementById("loading");
+        const nftGrid = document.getElementById("nft-grid");
+
+        // Function to show NFT grid
+        async function showNFTGrid() {
+          try {
+            // Hide NFT grid and show loading
+            nftGrid.style.display = "none";
+            loadingContainer.style.display = "block";
+
+            const nfts = await window.algoMintXClient.getListedNFTs();
+            window.renderNFTCards(nfts);
+
+            // Hide loading and show NFT grid
+            loadingContainer.style.display = "none";
+            nftGrid.style.display = "grid";
+          } catch (error) {
+            console.error("Error loading listed NFTs:", error);
+            alert("Failed to load listed NFTs: " + error.message);
+            loadingContainer.style.display = "none";
+            nftGrid.style.display = "none";
+          }
+        }
+
+        // Initial load of NFTs
+        await showNFTGrid();
+
+        // Listen for NFT purchase success
+        window.algoMintXClient.events.on("nft:buy:success", async () => {
+          // Refresh the listed NFTs after successful purchase
+          await showNFTGrid();
+        });
+
+        // Listen for NFT unlist success
+        window.algoMintXClient.events.on("nft:unlist:success", async () => {
+          // Refresh the listed NFTs after successful unlist
+          await showNFTGrid();
+        });
+
+        // Listen for wallet connection events
+        window.algoMintXClient.events.on(
+          "wallet:connection:connected",
+          async () => {
+            await showNFTGrid();
+          }
+        );
+
+        // Listen for wallet connection events
+        window.algoMintXClient.events.on(
+          "wallet:connection:disconnected",
+          async () => {
+            await showNFTGrid();
+          }
+        );
+      });
+    </script>
+  </body>
+</html>
